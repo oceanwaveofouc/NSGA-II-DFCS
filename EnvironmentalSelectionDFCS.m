@@ -16,10 +16,6 @@ CV = sum(max(0,Population.cons),2);
 if sum(CV==0) > N
     %% Selection among feasible solutions
     Population = Population(CV==0);
-%     % Non-dominated sorting
-%     [FrontNo,MaxFNo] = NDSort(Population.objs,N);
-%     Next = false(1,length(FrontNo));
-%     Next(FrontNo<=MaxFNo) = true;
     Next(1:size(Population,2)) = true;
     % Select the solutions in the last front
     Delete = LastSelection(Population(Next).objs,sum(Next)-N,Zmin);
@@ -36,11 +32,9 @@ end
 
 
 function Delete = LastSelection(PopObj,K,Zmin)
-% Select part of the solutions in the last front
     [N,M]  = size(PopObj);
     PopObj = (PopObj-repmat(Zmin,N,1))./(repmat(max(PopObj),N,1)-repmat(Zmin,N,1));
-    %% Associate each solution with one reference point
-    % Calculate the distance of each solution to each reference vector
+
       Cosine   = 1 - pdist2(PopObj,PopObj,'cosine');
       Cosine   = Cosine.*(1-eye(size(PopObj,1)));
       
@@ -55,7 +49,7 @@ function Delete = LastSelection(PopObj,K,Zmin)
         Temp_2 = Jmin_column(j);
          
 
-        if  (   sum(PopObj(Temp_1,:))>   sum(PopObj(Temp_2,:))  ) ||  (  sum(PopObj(Temp_1,:))==sum(PopObj(Temp_2,:)) && rand<0.5)
+        if  (   sum(PopObj(Temp_1,:)*PopObj(Temp_1,:)')>   sum(PopObj(Temp_2,:)*PopObj(Temp_2,:)')  ) ||  (  sum(PopObj(Temp_1,:)*PopObj(Temp_1,:)')==sum(PopObj(Temp_2,:)*PopObj(Temp_2,:)') && rand<0.5)
             Delete(Temp_1) = true;
             Cosine(:,Temp_1)=0;
             Cosine(Temp_1,:)=0;
